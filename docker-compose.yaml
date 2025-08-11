@@ -1,26 +1,68 @@
+version: "3.9"
+
 services:
+  ########## Open WebUI  #############################################
   open-webui:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG-main}
+
+    image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG:-main}
     container_name: open-webui
+
+    # Локальный том для «постоянства» (если понадобится)
     volumes:
       - open-webui:/app/backend/data
+
+    # Проброс наружу
     ports:
-      - ${OPEN_WEBUI_PORT-3000}:8080
+      - "${OPEN_WEBUI_PORT:-3000}:8080"
+
+    # Переменные среды
     environment:
-      - 'OLLAMA_BASE_URL=http://ollama:11434'
-      - 'WEBUI_SECRET_KEY='
+      # Адрес Ollama
+      - OLLAMA_BASE_URL=http://ollama:11434
+      # Секретный ключ (можно передавать из env‑файла)
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:-super-secret-key}
+      # -----------------------------------------------------------------
+      # URL к Redis (если вы включаете Redis) – не требуется, если нет
+      # - REDIS_URL=redis://redis:6379
+
+    # Для Docker for Windows / Mac / WSL
     extra_hosts:
       - host.docker.internal:host-gateway
+
     restart: unless-stopped
     networks:
       - bot-network
 
+
+  ########## Redis  (опционально) ####################################
+  # Если нужен кэш/сессии, просто раскомментируйте ниже.
+  #
+  # redis:
+  #   image: redis:7.0.12-alpine
+  #   container_name: redis
+  #   environment:
+  #     # Путь к паролю можно задавать здесь, если нужно
+  #     # REDIS_PASSWORD=${REDIS_PASSWORD:-}
+  #   # Поддерживаем persistence
+  #   volumes:
+  #     - redis:/data
+  #   command: >
+  #     sh -c "redis-server --save 10 1 --loglevel warning
+  #            ${REDIS_PASSWORD:+--requirepass $REDIS_PASSWORD}"
+  #   restart: unless-stopped
+  #   networks:
+  #     - bot-network
+  #
+
+# ------------------------------------------------
 volumes:
-  open-webui: {}
-  
+  open-webui: {}   # том для Open WebUI
+  # redis: {}       # том – нужен, если раскомментировали redis
+
+# ------------------------------------------------
 networks:
   bot-network:
     driver: bridge
