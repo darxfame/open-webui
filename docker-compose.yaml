@@ -30,8 +30,7 @@
       - host.docker.internal:host-gateway
 
     restart: unless-stopped
-    networks:
-      - bot-network
+    network_mode: host
 
 
   ########## Redis  (опционально) ####################################
@@ -60,6 +59,4 @@ volumes:
   # redis: {}       # том – нужен, если раскомментировали redis
 
 # ------------------------------------------------
-networks:
-  bot-network:
-    driver: host
+
