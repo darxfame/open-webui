@@ -1,15 +1,4 @@
 services:
-  ollama:
-    volumes:
-      - ollama:/root/.ollama
-    container_name: ollama
-    pull_policy: always
-    tty: true
-    restart: unless-stopped
-    image: ollama/ollama:${OLLAMA_DOCKER_TAG-latest}
-    networks:
-      - bot-network
-
   open-webui:
     build:
       context: .
@@ -34,7 +23,6 @@ services:
       - bot-network
 
 volumes:
-  ollama: {}
   open-webui: {}
   
 networks:
