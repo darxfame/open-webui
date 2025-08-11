@@ -1,6 +1,3 @@
-version: "3.9"
-
-services:
   ########## Open WebUI  #############################################
   open-webui:
     build:
